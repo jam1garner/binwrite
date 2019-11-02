@@ -3,6 +3,8 @@
 use byteorder::{WriteBytesExt, BE, LE, NativeEndian};
 use std::io::{Result, Write};
 
+pub use binwrite_derive::*;
+
 pub mod write_track;
 pub mod writers;
 mod binwrite_impls;
