@@ -26,3 +26,5 @@ fn main() {
     assert_eq!(bytes, vec![1, 0, 0, 0, 0xFE, 0xFF, 0xFF, 0xFF]);
 }
 ```
+
+more examples can be found in the `BinWrite` documentation.
