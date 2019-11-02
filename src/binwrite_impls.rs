@@ -131,30 +131,3 @@ macro_rules! binwrite_tuple_impl {
 }
 
 binwrite_tuple_impl!(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20);
-
-/*macro_rules! binwrite_tuple_impl {
-    (($num1:literal: $type1: ident: $name1:ident), $(($nums:literal: $types:ident: $names:ident)),*) => {
-        impl<$type1: BinWrite, $($types: BinWrite),*> BinWrite for ($type1, $($types),*) {
-            fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()> {
-                let (_, $($names),*) = self;
-                BinWrite::write_options(&self.0, writer, options)?;
-                $(
-                    BinWrite::write_options($names, writer, options)?;
-                )*
-                Ok(())
-            }
-        }
-    };
-
-    () => {
-        impl BinWrite for () {
-            fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()> {
-                Ok(())
-            }
-        }
-    };
-
-}
-
-binwrite_tuple_impl!((0: B1: b1), (1: B2: b2), (2: B3: b3), (3: B4: b4), (4: B5: b5), (5: B6: b6), (6: B7: b7), (7: B8: b8), (8: B9: b9), (9: B10: b10), (10: B11: b11), (11: B12: b12), (12: B13: b13), (13: B14: b14), (14: B15: b15), (15: B16: b16), (16: B17: b17), (17: B18: b18), (18: B19: b19), (19: B20: b20));
-*/

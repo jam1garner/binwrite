@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use binwrite::*;
+use binwrite::BinWrite;
 
 // Easy to add, reusable components
 // vec_with_len::write uses the format of:
