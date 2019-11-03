@@ -27,4 +27,4 @@ fn main() {
 }
 ```
 
-more examples can be found in the `BinWrite` documentation.
+more examples can be found [in the BinWrite documentation.](https://docs.rs/binwrite/0.1/binwrite/trait.BinWrite.html)
