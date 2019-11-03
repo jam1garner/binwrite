@@ -89,9 +89,27 @@ macro_rules! binwrite_array_impl {
 
 binwrite_array_impl!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20);
 
+impl BinWrite for &[u8] {
+    fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
+        writer.write_all(self)
+    }
+}
+
 impl BinWrite for str {
     fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
         writer.write_all(self.as_bytes())
+    }
+}
+
+impl BinWrite for &str {
+    fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
+        writer.write_all((*self).as_bytes())
+    }
+}
+
+impl<B: BinWrite> BinWrite for &B {
+    fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()> {
+        (*self).write_options(writer, options)
     }
 }
 
