@@ -1,5 +1,3 @@
-#![feature(fixed_size_array)]
-#![feature(trait_alias)]
 use byteorder::{WriteBytesExt, BE, LE, NativeEndian};
 use std::io::{Result, Write};
 
@@ -187,6 +185,73 @@ pub use binwrite_impls::*;
 /// }
 /// ```
 /// use `pad` and `pad_after` for fixed amounts of padding.
+///
+/// ### Advanced Preprocessors
+/// Using generics/closures, you can make "configurable" and more reusable preprocessors.
+///
+/// Example (a configurable "add X before writing"):
+/// ```rust
+/// use binwrite::BinWrite;
+///
+/// fn add<T: std::ops::Add<Output = T> + Copy>(lhs: T) -> impl Fn(T) -> T {
+///     move |rhs| lhs + rhs
+/// }
+///
+/// #[derive(BinWrite)]
+/// struct Foo {
+///     #[binwrite(preprocessor(add(10)))]
+///     bar_u32: u32,
+///     #[binwrite(preprocessor(add(-1)))]
+///     bar_i64: i64,
+/// }
+///
+/// fn main() {
+///     let mut bytes = vec![];
+///
+///     Foo {
+///         bar_u32: 2,
+///         bar_i64: 0,
+///     }.write(&mut bytes).unwrap();
+///
+///     assert_eq!(bytes, vec![0xCu8, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+/// }
+/// ```
+///
+/// ### Postprocessors
+///
+/// Postprocessors are functions which take a `Vec<u8>` (what would normally be written) and
+/// produce any type that implements BinWrite, which is then written in place of the bytes.
+/// ```rust
+/// use binwrite::BinWrite;
+///
+/// fn not_crc32(bytes: &Vec<u8>) -> u32 {
+///     4
+/// }
+///
+/// fn prepend_crc32(bytes: Vec<u8>) -> (u32, Vec<u8>) {
+///     (
+///         not_crc32(&bytes),
+///         bytes
+///     )
+/// }
+///
+/// #[derive(BinWrite)]
+/// #[binwrite(big)]
+/// struct Foo {
+///     #[binwrite(postprocessor(prepend_crc32))]
+///     bar: u32,
+/// }
+///
+/// fn main() {
+///     let mut bytes = vec![];
+///
+///     Foo {
+///         bar: 2,
+///     }.write(&mut bytes).unwrap();
+///
+///     assert_eq!(bytes, vec![0x0u8, 0, 0, 4, 0, 0, 0, 0x2]);
+/// }
+/// ```
 pub trait BinWrite {
     fn write<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
         self.write_options(writer, &WriterOption::default())
@@ -195,6 +260,7 @@ pub trait BinWrite {
     fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()>;
 }
 
+/// An enum to represent what endianness to write with
 #[derive(Clone, Copy, Debug)]
 pub enum Endian {
     Big,
@@ -214,14 +280,18 @@ impl Into<String> for &Endian {
     }
 }
 
+/// Options on how to write. Use [writer_option_new!](crate::writer_option_new) to create a new
+/// instance. Manual initialization is not possible to prevent forward compatibility issues.
 #[derive(Default, Clone)]
 pub struct WriterOption {
     pub endian: Endian,
-    // A private field to prevent users from creating/destructuring in a non-forwards compatible
-    // manner
+    /// A private field to prevent users from creating/destructuring in a non-forwards compatible
+    /// manner
     _prevent_creation: ()
 }
 
+/// Macro for creating a new writer option, with the idea being a non-verbose means of providing a
+/// forwards-compatible set of options which uses default values for all provided options.
 #[macro_export] macro_rules! writer_option_new {
     ($($field:ident : $val:expr),*$(,)?) => {
         {
@@ -232,10 +302,6 @@ pub struct WriterOption {
             _writer_option
         }
     }
-}
-
-pub enum OtherOptions {
-
 }
 
 impl Default for Endian {

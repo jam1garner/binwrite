@@ -1,6 +1,10 @@
 use std::io::{Write, Seek, Result, SeekFrom};
 use std::ops::{Deref, DerefMut};
 
+/// A struct for wrapping anything that implements the [Write](std::io::Write) type, tracking the current
+/// position and implementing [Seek](std::io::Seek), but only for seeks that go nowhere. This
+/// allows you to keep track of how many bytes have been written since the creation of the
+/// WriteTrack. Can be thought of as a looser, albeit weaker, [Cursor](std::io::Cursor)
 pub struct WriteTrack<W: Write> {
     inner: W,
     pos: usize,

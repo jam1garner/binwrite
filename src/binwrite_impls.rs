@@ -1,5 +1,6 @@
 use super::*;
 
+/// Internal macro for quickly implementing binwrite for types supported by byteorder
 macro_rules! binwrite_impl {
     ($(($type_name:ty, $write_func:ident)),*$(,)?) => {
         $(
@@ -24,22 +25,19 @@ macro_rules! binwrite_impl {
 
 impl BinWrite for char {
     fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write(&[*self as u8])?;
-        Ok(())
+        writer.write_all(&[*self as u8])
     }
 }
 
 impl BinWrite for u8 {
     fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write(&[*self])?;
-        Ok(())
+        writer.write_all(&[*self])
     }
 }
 
 impl BinWrite for i8 {
     fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write(&[*self as u8])?;
-        Ok(())
+        writer.write_all(&[*self as u8])
     }
 }
 
@@ -119,6 +117,7 @@ impl BinWrite for String {
     }
 }
 
+/// Internal macro to recursively implement BinWrite for every size tuple 0 to 20
 macro_rules! binwrite_tuple_impl {
     ($type1:ident $(, $types:ident)*) => {
         #[allow(non_camel_case_types)]
@@ -145,7 +144,7 @@ macro_rules! binwrite_tuple_impl {
             }
         }
     };
-
 }
 
 binwrite_tuple_impl!(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20);
+
