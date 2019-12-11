@@ -1,9 +1,45 @@
+//! A Rust crate for helping write structs as binary data using ✨macro magic✨
+//! 
+//! # Example:
+//!```rust
+//! use binwrite::BinWrite;
+//!
+//! #[derive(BinWrite)]
+//! #[binwrite(little)]
+//! struct Rect {
+//!     x: i32,
+//!     y: i32,
+//!     #[binwrite(big)]
+//!     size: (u16, u16),
+//! }
+//!
+//! fn main() {
+//!     let rects = vec![
+//!         Rect { x: 1, y: -2, size: (3, 4) },
+//!         Rect { x: 20, y: 4, size: (5, 7) }
+//!     ];
+//!     let mut bytes = vec![];
+//!     rects.write(&mut bytes).unwrap();
+//!     assert_eq!(
+//!         bytes,
+//!         vec![
+//!         //  [  x (little endian) ]  [  y (little endian) ]  [ size.0 ]  [ size.1 ]
+//!             0x01, 0x00, 0x00, 0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0x00, 0x03, 0x00, 0x04,
+//!             0x14, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x07,
+//!         ]
+//!     );
+//! }
+//!```
+
 use byteorder::{WriteBytesExt, BE, LE, NativeEndian};
 use std::io::{Result, Write};
 
-pub use binwrite_derive::*;
+/// Derive macro for BinWrite. [Usage here](BinWrite).
+pub use binwrite_derive::BinWrite;
 
+/// Module for [WriteTrack\<T\>](write_track::WriteTrack)
 pub mod write_track;
+/// Built-in special writers (example: C strings)
 pub mod writers;
 mod binwrite_impls;
 
@@ -280,7 +316,7 @@ impl Into<String> for &Endian {
     }
 }
 
-/// Options on how to write. Use [writer_option_new!](crate::writer_option_new) to create a new
+/// Options on how to write. Use [writer_option_new!](writer_option_new) to create a new
 /// instance. Manual initialization is not possible to prevent forward compatibility issues.
 #[derive(Default, Clone)]
 pub struct WriterOption {
