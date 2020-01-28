@@ -2,19 +2,23 @@ use super::*;
 
 /// Internal macro for quickly implementing binwrite for types supported by byteorder
 macro_rules! binwrite_impl {
-    ($(($type_name:ty, $write_func:ident)),*$(,)?) => {
+    ($($type_name:ty),*$(,)?) => {
         $(
             impl BinWrite for $type_name {
                 fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()> {
                     match options.endian {
                         Endian::Big => {
-                            writer.$write_func::<BE>(*self)
+                            writer.write_all(&self.to_be_bytes())
                         }
                         Endian::Little => {
-                            writer.$write_func::<LE>(*self)
+                            writer.write_all(&self.to_le_bytes())
                         }
                         Endian::Native => {
-                            writer.$write_func::<NativeEndian>(*self)
+                            if cfg!(target_endian = "little") {
+                                writer.write_all(&self.to_le_bytes())
+                            } else {
+                                writer.write_all(&self.to_be_bytes())
+                            }
                         }
                     }
                 }
@@ -25,32 +29,12 @@ macro_rules! binwrite_impl {
 
 impl BinWrite for char {
     fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write_all(&[*self as u8])
+        // This is a bad impl but idk how encode_utf8 works
+        writer.write_all(self.to_string().as_bytes())
     }
 }
 
-impl BinWrite for u8 {
-    fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write_all(&[*self])
-    }
-}
-
-impl BinWrite for i8 {
-    fn write_options<W: Write>(&self, writer: &mut W, _options: &WriterOption) -> Result<()> {
-        writer.write_all(&[*self as u8])
-    }
-}
-
-binwrite_impl!(
-    (u16, write_u16),
-    (u32, write_u32),
-    (u64, write_u64),
-    (i16, write_i16),
-    (i32, write_i32),
-    (i64, write_i64),
-    (f32, write_f32),
-    (f64, write_f64),
-);
+binwrite_impl!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
 
 impl<B: BinWrite> BinWrite for Vec<B> {
     fn write_options<W: Write>(&self, writer: &mut W, options: &WriterOption) -> Result<()> {

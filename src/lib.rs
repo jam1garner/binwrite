@@ -31,7 +31,6 @@
 //! }
 //!```
 
-use byteorder::{WriteBytesExt, BE, LE, NativeEndian};
 use std::io::{Result, Write};
 
 /// Derive macro for BinWrite. [Usage here](BinWrite).
