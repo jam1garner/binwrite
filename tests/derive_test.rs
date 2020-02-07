@@ -17,7 +17,7 @@ mod vec_with_len {
     }
 }
 
-fn add_one(test: u8) -> u8 {
+fn add_one(test: &u8) -> u8 {
     test + 1
 }
 

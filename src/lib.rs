@@ -105,7 +105,7 @@ pub use binwrite_impls::*;
 ///     bar2: String,
 /// }
 ///
-/// fn u32_to_hex_string(var: u32) -> String {
+/// fn u32_to_hex_string(var: &u32) -> String {
 ///     format!("{:X}", var)
 /// }
 ///
@@ -228,8 +228,8 @@ pub use binwrite_impls::*;
 /// ```rust
 /// use binwrite::BinWrite;
 ///
-/// fn add<T: std::ops::Add<Output = T> + Copy>(lhs: T) -> impl Fn(T) -> T {
-///     move |rhs| lhs + rhs
+/// fn add<T: std::ops::Add<Output = T> + Copy>(lhs: T) -> impl Fn(&T) -> T {
+///     move |rhs| lhs + *rhs
 /// }
 ///
 /// #[derive(BinWrite)]

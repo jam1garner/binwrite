@@ -1,6 +1,6 @@
 [package]
 name = "binwrite"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["jam1garner <jam1.mcleod@hotmail.com>"]
 edition = "2018"
 repository = "https://github.com/jam1garner/binwrite"
@@ -11,5 +11,5 @@ documentation = "https://docs.rs/binwrite"
 
 [dependencies]
 paste = "^0.1.6"
-binwrite_derive = "^0.1.2"
+binwrite_derive = "^0.2"
 
