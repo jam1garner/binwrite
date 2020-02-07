@@ -23,7 +23,7 @@ fn add_one(test: &u8) -> u8 {
 
 #[derive(BinWrite)]
 #[binwrite(little)]
-struct Test {
+struct Test<'a> {
     magic: [char; 4],
     
     #[binwrite(with(vec_with_len::write))]
@@ -45,6 +45,8 @@ struct Test {
     test: String,
 
     tuple_test: (u32, String, u8),
+
+    string: &'a str,
 }
 
 #[test]
@@ -58,7 +60,8 @@ fn main() {
         val_u8: 0x69,
         this_will_be_ignored: 0x42042000,
         test: "this_is_test".to_string(),
-        tuple_test: (0xBADF00D5, "tuple test".into(), 0x33)
+        tuple_test: (0xBADF00D5, "tuple test".into(), 0x33),
+        string: "lifetime_test"
     };
     
     test.write(&mut bytes).unwrap();
