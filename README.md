@@ -1,5 +1,7 @@
 # binwrite
 
+[![Join the chat at https://gitter.im/binwrite/community](https://badges.gitter.im/binwrite/community.svg)](https://gitter.im/binwrite/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A Rust crate for helping write structs as binary data using ✨macro magic✨
 
 
